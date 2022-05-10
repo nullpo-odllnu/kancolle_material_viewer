@@ -1,7 +1,11 @@
+import time
+import datetime
+
 import fire
 import pandas
 import plotly.graph_objects as graph_objects
 from plotly.subplots import make_subplots
+import schedule
 
 
 def read_excel(file : str, sheet : str) -> pandas.DataFrame:
@@ -68,21 +72,8 @@ def plot_material(dataframe : pandas.DataFrame) -> graph_objects.Figure:
     return figure
 
 
-def main(excel : str,
-         sheet : str = '資源メモ',
-         html : str = 'kankolle_material_viewer.html'):
-    """
-    艦これ資源ビューア作成スクリプト
-
-    Args:
-        excel: エクセルファイルパス
-        sheet : 処理対象のシート名
-        html : 出力htmlファイルパス
-    """
-    print('[{}]'.format(__file__))
-    print('excel filepath : {}'.format(excel))
-    print('excel target sheet : {}'.format(sheet))
-    print('output html filepath : {}'.format(html))
+def main_job(excel : str, sheet : str, html : str):
+    print('------ 定期実行開始 : {}'.format(datetime.datetime.now()))
 
     print('------ excel読み込み')
     dataframe = read_excel(excel, sheet)
@@ -97,6 +88,39 @@ def main(excel : str,
 
     print('------ 表の出力')
     figure.write_html(html)
+
+
+def main(excel : str,
+         sheet : str = '資源メモ',
+         html : str = 'kankolle_material_viewer.html',
+         frequency_hour : float = 0):
+    """
+    艦これ資源ビューア作成スクリプト
+
+    Args:
+        excel: エクセルファイルパス
+        sheet : 処理対象のシート名
+        html : 出力htmlファイルパス
+        frequency_hour : 実行周期　時間単位で指定、0指定で定期実行なし、1時間未満を指定する場合は小数点指定
+    """
+    print('[{}]'.format(__file__))
+    print('excel filepath : {}'.format(excel))
+    print('excel target sheet : {}'.format(sheet))
+    print('output html filepath : {}'.format(html))
+    print('frequency execution {}[hours]'.format(frequency_hour))
+
+    # まずは1回
+    main_job(excel, sheet, html)
+    # frequency_hourが0の場合はここで終わり
+    if frequency_hour == 0:
+        print('------ 定期実行なしで終了')
+        return
+
+    # 定期実行
+    schedule.every(frequency_hour).hours.do(main_job, excel = excel, sheet = sheet, html = html)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 
 if __name__ == '__main__':
