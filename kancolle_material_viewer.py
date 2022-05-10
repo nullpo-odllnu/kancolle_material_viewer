@@ -3,6 +3,7 @@ import pandas
 import plotly.graph_objects as graph_objects
 from plotly.subplots import make_subplots
 
+
 def read_excel(file : str, sheet : str) -> pandas.DataFrame:
     dataframe = pandas.read_excel(file, sheet_name = sheet)
     return dataframe
@@ -65,6 +66,7 @@ def plot_material(dataframe : pandas.DataFrame) -> graph_objects.Figure:
     # 確認は出力htmlを推奨
 
     return figure
+
 
 def main(excel : str,
          sheet : str = '資源メモ',
