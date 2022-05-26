@@ -39,12 +39,13 @@ def plot_material_sub(dataframe : pandas.DataFrame, figure : graph_objects.Figur
     figure.add_trace(graph_objects.Scattergl(x = datetime, y = bullet, name = '弾薬', line = dict(color = "#ffd700")), row = row, col = col)
     figure.add_trace(graph_objects.Scattergl(x = datetime, y = metal, name = '鉄鋼', line = dict(color = '#a9a9a9')), row = row, col = col)
     figure.add_trace(graph_objects.Scattergl(x = datetime, y = bauxite, name = 'ボーキ', line = dict(color = '#ffa500')), row = row, col = col)
-    figure.add_trace(graph_objects.Scattergl(x = datetime, y = bucket, name = 'バケツ', line = dict(color = '#7fffd4')), row = row, col = col, secondary_y = True)
+    figure.add_trace(graph_objects.Scattergl(x = datetime, y = bucket, name = 'バケツ', line = dict(color = '#7fffd4', width = 4)), row = row, col = col, secondary_y = True)
 
     figure.update_xaxes(title = x_title,
                         rangeselector = dict(
                             buttons = list([
                                 dict(count = 1, label = '1ヶ月', step = 'month', stepmode = 'backward'),
+                                dict(count = 3, label = '3ヶ月', step = 'month', stepmode = 'backward'),
                                 dict(count = 6, label = '6ヶ月', step = 'month', stepmode = 'backward'),
                                 dict(count = 1, label = '今年から', step = 'year', stepmode = 'todate'),
                                 dict(count = 1, label = '1年', step = 'year', stepmode = 'backward'),
@@ -58,12 +59,12 @@ def plot_material_sub(dataframe : pandas.DataFrame, figure : graph_objects.Figur
                         row = row, col = col)
 
 
-def plot_material(dataframe : pandas.DataFrame) -> graph_objects.Figure:
+def plot_material(dataframe : pandas.DataFrame, job_datetime : datetime.datetime) -> graph_objects.Figure:
     figure = make_subplots(rows = 1, cols = 1, specs = [[{'secondary_y' : True}]])
 
     plot_material_sub(dataframe, figure, 1, 1, '日付', '総合資源量', '総合資源量(バケツ)')
 
-    figure.update_layout(title = '艦これ資源表',
+    figure.update_layout(title = '艦これ資源表({}更新)'.format(job_datetime),
                          font = {'family' : 'Meiryo', 'size' : 20, 'color' : 'darkgray'}, template = 'plotly_dark')
 
     # 確認用にfigure.showで確認したくなるが、データ量によってはレスポンスを失うため
@@ -73,7 +74,8 @@ def plot_material(dataframe : pandas.DataFrame) -> graph_objects.Figure:
 
 
 def main_job(excel : str, sheet : str, html : str):
-    print('------ 定期実行開始 : {}'.format(datetime.datetime.now()))
+    job_datetime = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+    print('------ 定期実行開始 : {}'.format(job_datetime))
 
     print('------ excel読み込み')
     dataframe = read_excel(excel, sheet)
@@ -84,7 +86,7 @@ def main_job(excel : str, sheet : str, html : str):
     print(dataframe)
 
     print('------ 資源の可視化')
-    figure = plot_material(dataframe)
+    figure = plot_material(dataframe, job_datetime)
 
     print('------ 表の出力')
     figure.write_html(html)
