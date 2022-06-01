@@ -7,6 +7,12 @@
     - <img src = "viewer.gif">
 - 時間単位での定期実行も実装
 
+## 使用例
+- `python kancolle_material_viewer.py -e <入力excelファイルパス> -f 12 -c 備考`
+    - 実行ディレクトリに `kancolle_material_viewer.html` が出力される
+    - 12時間おきに出力ファイル更新
+    - 備考列をコメントとして扱う
+
 ## excel仕様
 - 以下のシートがあることを想定して実装している
     - `資源メモ` (コマンドライン引数で変更可能)
